@@ -1,10 +1,9 @@
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.OptionalDouble;
 import java.util.stream.DoubleStream;
 
 
-public class ScalarField extends Matrix<Double> implements Visualisable {
+public class ScalarField extends Matrix<Double> implements ExportableToCSV {
     public ScalarField(int width, int height) {
         super(width, height);
 
@@ -81,31 +80,21 @@ public class ScalarField extends Matrix<Double> implements Visualisable {
         return times(1/divisor);
     }
 
-    public BufferedImage drawImage() {
-        try {
-            ScalarField scaled = times(255 / getMax());
+    @Override
+    public String toCSVString() {
+        // Displays doubles row by row
+        StringBuilder result = new StringBuilder();
 
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int val = (int) Math.round(scaled.getElement(x, y));
-
-                    Color c;
-
-                    if (0 <= val && val < 256) {  // Within valid range
-                        c = new Color(val, val, val);
-                    } else {
-                        c = Color.red;
-                    }
-
-                    image.setRGB(x, y, c.getRGB());
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                result.append(getElement(x, y));
+                if (x != width - 1) {
+                    result.append(", ");
                 }
             }
-
-            return image;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            result.append('\n');
         }
+
+        return result.toString();
     }
 }

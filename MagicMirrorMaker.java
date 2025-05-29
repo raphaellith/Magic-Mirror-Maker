@@ -17,9 +17,5 @@ public class MagicMirrorMaker {
         ScalarField brightnesses = new ScalarField(image, 650, 60, 1024, 1024);
 
         brightnesses.divideBy(brightnesses.getSum());
-
-//        brightnesses.drawImage("saved.png");
-
-        Lens lens = new Lens(brightnesses.width, brightnesses.height);
     }
 }
