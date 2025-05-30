@@ -1,5 +1,4 @@
 import java.awt.image.BufferedImage;
-import java.util.OptionalDouble;
 import java.util.stream.DoubleStream;
 
 
@@ -51,14 +50,14 @@ public class ScalarField extends Matrix<Double> implements ExportableToCSV {
         return asDoubleStream().sum();
     }
 
-    public double getMax() throws Exception {
-        OptionalDouble optionalMax = asDoubleStream().max();
-        if (optionalMax.isPresent()) {
-            return optionalMax.getAsDouble();
-        } else {
-            throw new Exception("Field is empty");
-        }
-    }
+//    public double getMax() throws Exception {
+//        OptionalDouble optionalMax = asDoubleStream().max();
+//        if (optionalMax.isPresent()) {
+//            return optionalMax.getAsDouble();
+//        } else {
+//            throw new Exception("Field is empty");
+//        }
+//    }
 
 //    public ScalarField negation() {
 //        return new ScalarField(getMapped(x -> -x));

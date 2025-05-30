@@ -9,15 +9,12 @@ public class PoissonSolver {
     https://math.libretexts.org/Bookshelves/Scientific_Computing_Simulations_and_Modeling/Scientific_Computing_(Chasnov)/I%3A_Numerical_Methods/6%3A_Finite_Difference_Approximation
     https://math.libretexts.org/Bookshelves/Scientific_Computing_Simulations_and_Modeling/Scientific_Computing_(Chasnov)/I%3A_Numerical_Methods/7%3A_Iterative_Methods
     */
+    public static int updates = 0;
 
-    public static ScalarField solvePoisson(ScalarField phi, ScalarField f,
+    public static ScalarField solvePoisson(ScalarField f,
                                            PoissonBoundaryConditions boundaryConditions, PoissonMethod method,
-                                           double stabilisationThreshold) throws Exception {
-        if (!phi.hasSameShapeAs(f)) {
-            throw new Exception("Cannot solve Poisson equation with matrices of different sizes");
-        }
-
-        phi = new ScalarField(phi);
+                                           double stabilisationThreshold) {
+        ScalarField phi = new ScalarField(f.width, f.height);  // Initialised to zeroes
 
         // Check whether this is trivial
         // Solving is trivial when the matrix is small enough
@@ -27,17 +24,21 @@ public class PoissonSolver {
             case PoissonBoundaryConditions.NEUMANN -> { if (minSideLen == 1) { return phi; } }
         }
 
+        updates = 0;
+
         // Repeatedly "update" phi until it has stabilised
         Optional<ScalarField> optionalPhi;
         switch (method) {
             case PoissonMethod.JACOBI -> {
                 while ((optionalPhi = updateViaJacobi(phi, f, boundaryConditions, stabilisationThreshold)).isPresent()) {
                     phi = optionalPhi.get();
+                    System.out.println(updates++);
                 }
             }
             case PoissonMethod.GAUSS_SEIDEL -> {
                 while ((optionalPhi = updateViaGaussSeidei(phi, f, boundaryConditions, stabilisationThreshold)).isPresent()) {
                     phi = optionalPhi.get();
+                    System.out.println(updates++);
                 }
             }
         }
@@ -89,7 +90,7 @@ public class PoissonSolver {
 
         double sumOfNeighbours = neighbours.stream().mapToDouble(d -> d).sum();
 
-        return (sumOfNeighbours - f.getElement(x, y)) / 4.0;
+        return (sumOfNeighbours - f.getElement(x, y)) / 4d;
     }
 
     private static Optional<ScalarField> updateViaJacobi(ScalarField phi, ScalarField f, PoissonBoundaryConditions boundaryConditions, double stabilisationThreshold) {
@@ -149,10 +150,8 @@ public class PoissonSolver {
     }
 
     public static void main(String[] args) {  // Test
-        ScalarField testField = new ScalarField(6, 6);
-        testField.setNthColumn(0, 1d);
         try {
-            testField = solvePoisson(testField, new ScalarField(6, 6), PoissonBoundaryConditions.DIRICHLET, PoissonMethod.GAUSS_SEIDEL, 1e-10);
+            ScalarField testField = solvePoisson(new ScalarField(6, 6), PoissonBoundaryConditions.DIRICHLET, PoissonMethod.GAUSS_SEIDEL, 1e-10);
             System.out.println(testField);
         } catch (Exception e) {
             e.printStackTrace();

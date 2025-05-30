@@ -30,9 +30,9 @@ public class Matrix<T> {
         return result.toString();
     }
 
-    public boolean validIndices(int x, int y) {
-        return 0 <= x && x < width && 0 <= y && y < height;
-    }
+//    public boolean validIndices(int x, int y) {
+//        return 0 <= x && x < width && 0 <= y && y < height;
+//    }
 
     public <T2> boolean hasSameShapeAs(Matrix<T2> otherMatrix) {
         return width == otherMatrix.width && height == otherMatrix.height;

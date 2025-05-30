@@ -9,6 +9,15 @@ public class VectorField extends Matrix<Vector2D> implements ExportableToCSV {
         }
     }
 
+    public VectorField(Matrix<Vector2D> matrix) {
+        super(matrix.width, matrix.height);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                setElement(x, y, matrix.getElement(x, y));
+            }
+        }
+    }
+
     @Override
     public String toCSVString() {
         // xPos, yPos, vectorX, vectorY
@@ -30,5 +39,9 @@ public class VectorField extends Matrix<Vector2D> implements ExportableToCSV {
         }
 
         return result.toString();
+    }
+
+    public VectorField negated() {
+        return new VectorField(getMapped(Vector2D::negated));
     }
 }

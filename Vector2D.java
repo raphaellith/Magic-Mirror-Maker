@@ -36,6 +36,10 @@ public class Vector2D {
         return new Vector2D(x + otherVector.getX(), y + otherVector.getY());
     }
 
+    public Vector2D negated() {
+        return new Vector2D(-x, -y);
+    }
+
     public double length() {
         return Math.sqrt(x * x + y * y);
     }
