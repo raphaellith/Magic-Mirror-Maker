@@ -1,3 +1,5 @@
+import java.util.Optional;
+
 public class Vector2D {
     private double x;
     private double y;
@@ -24,16 +26,28 @@ public class Vector2D {
         return y;
     }
 
-//    public void setX(double x) {
-//        this.x = x;
+//    public Vector2D horizontalComponent() {
+//        return new Vector2D(x, 0);
 //    }
 //
-//    public void setY(double y) {
-//        this.y = y;
+//    public Vector2D verticalComponent() {
+//        return new Vector2D(0, y);
 //    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
 
     public Vector2D plus(Vector2D otherVector) {
         return new Vector2D(x + otherVector.getX(), y + otherVector.getY());
+    }
+
+    public Vector2D minus(Vector2D otherVector) {
+        return new Vector2D(x - otherVector.getX(), y - otherVector.getY());
     }
 
     public Vector2D negated() {
@@ -44,8 +58,15 @@ public class Vector2D {
         return Math.sqrt(x * x + y * y);
     }
 
-    public Vector2D normalised() {
-        return scaled(1/length());
+//    public Vector2D normalised() {
+//        return scaled(1/length());
+//    }
+
+    public Optional<Vector2D> scaledToLength(double len) {
+        if (length() == 0) {
+            return Optional.empty();
+        }
+        return Optional.of(scaled(len / length()));
     }
 
     public Vector2D scaled(double m) {

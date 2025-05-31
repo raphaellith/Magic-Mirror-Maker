@@ -16,6 +16,15 @@ public class Matrix<T> {
         this.matrix = (T[][]) new Object[width][height];
     }
 
+    public Matrix(Matrix<T> m) {
+        this(m.width, m.height);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                matrix[y][x] = m.getElement(x, y);
+            }
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("[\n");
@@ -30,9 +39,9 @@ public class Matrix<T> {
         return result.toString();
     }
 
-//    public boolean validIndices(int x, int y) {
-//        return 0 <= x && x < width && 0 <= y && y < height;
-//    }
+    public boolean validIndices(int x, int y) {
+        return 0 <= x && x < width && 0 <= y && y < height;
+    }
 
     public <T2> boolean hasSameShapeAs(Matrix<T2> otherMatrix) {
         return width == otherMatrix.width && height == otherMatrix.height;
@@ -91,25 +100,43 @@ public class Matrix<T> {
         matrix[y][x] = val;
     }
 
-    public void setNthRow(int y, T val) {
-        for (int x = 0; x < width; x++) {
-            setElement(x, y, val);
-        }
-    }
-
-    public void setNthColumn(int x, T val) {
-        for (int y = 0; y < height; y++) {
-            setElement(x, y, val);
-        }
-    }
+//    public void setNthRow(int y, T val) {
+//        for (int x = 0; x < width; x++) {
+//            setElement(x, y, val);
+//        }
+//    }
+//
+//    public void setNthColumn(int x, T val) {
+//        for (int y = 0; y < height; y++) {
+//            setElement(x, y, val);
+//        }
+//    }
 
     public List<T> getNeighboursOfElementAt(int x, int y) {
-        return Arrays.asList(
-            getElement(x + 1, y),
-            getElement(x, y + 1),
-            getElement(x - 1, y),
-            getElement(x, y - 1)
-        );
+        return Stream.of(
+                new IntPair(x + 1, y),
+                new IntPair(x, y + 1),
+                new IntPair(x - 1, y),
+                new IntPair(x, y - 1)
+        )
+                .filter(pair -> validIndices(pair.a(), pair.b()))
+                .map(pair -> getElement(pair.a(), pair.b()))
+                .toList();
+    }
+
+    public Matrix<T> copiedInto(Matrix<T> otherMatrix) {
+        // Copies elements into a copy of the otherMatrix, not necessarily of the same size.
+        // If this matrix is smaller than the otherMatrix, the other elements in the otherMatrix are unbothered.
+        // If this matrix is larger than the otherMatrix, the surplus elements are ignored.
+
+        otherMatrix = new Matrix<>(otherMatrix);
+
+        for (int y = 0; y < Math.min(height, otherMatrix.height); y++) {
+            for (int x = 0; x < Math.min(width, otherMatrix.width); x++) {
+                otherMatrix.setElement(x, y, getElement(x, y));
+            }
+        }
+        return otherMatrix;
     }
 
     public Stream<T> asStream() {

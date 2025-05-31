@@ -1,35 +1,72 @@
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 public class MagicMirrorMaker {
+//    public static void main(String[] args) {
+//        try {
+//            VectorField velField = new VectorField("Files/velField0.csv");
+//            Lens lens = new Lens(4, 4);;
+//            System.out.println(lens);
+//            lens.marchPointsBasedOnVelocityField(new VectorField(4, 4));
+//            lens.exportToCSV(createCSVFileName("lens", iterations));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+
     public static void main(String[] args) {
+        long startTime = System.nanoTime();
+
         try {
-            BufferedImage image;
-            File imgFile = new File("UncroppedImage.jpg");
-            image = ImageIO.read(imgFile);
+            BufferedImage image = ImageHandler.loadImage("Files/UncroppedImage.jpg");
+            image = ImageHandler.scaleBy(image, 0.25);
 
-            // Resize to half size
-            BufferedImage resizedImage = new BufferedImage(image.getWidth() / 2, image.getHeight() / 2, BufferedImage.TYPE_INT_RGB);
-            Graphics2D graphics2D = resizedImage.createGraphics();
-            graphics2D.drawImage(image, 0, 0, image.getWidth() / 2, image.getHeight() / 2, null);
-            graphics2D.dispose();
-            image = resizedImage;
-
-            ScalarField targetBrightnesses = new ScalarField(image, 325, 30, 512, 512);
+            ScalarField targetBrightnesses = new ScalarField(image, 162, 15, 256, 256);
 
             Lens lens = new Lens(targetBrightnesses.width, targetBrightnesses.height);
 
-            ScalarField loss = lens.getLoss(targetBrightnesses);
-//            loss.exportToCSV("test.csv");
+            int iterations = 0;
+            while (iterations < 5) {
+                ScalarField loss = lens.getLoss(targetBrightnesses);
+                loss.exportToCSV(createCSVFileName("loss", iterations));
 
-            ScalarField phi = PoissonSolver.solvePoisson(loss, PoissonBoundaryConditions.NEUMANN, PoissonMethod.GAUSS_SEIDEL, 1e-9);
+                /*
+                TESTS FOR DIFFERENT OVERCORRECTION VALUES
 
-            phi.exportToCSV("poissonTest.csv");
+                Value       Max diff after 10000 updates
+                1.0         4.00 E-7
+                1.0625      3.27 E-7
+                1.125       2.98 E-7
+                1.1875      3.20 E-7
+                1.25        3.36 E-7
+                1.5         3.54 E-7
+                1.75        5.5 E-7
+                1.9         1.48 E-6
+                1.94        2.52 E-6
+                 */
+
+                ScalarField phi = PoissonSolver.solvePoisson(loss, 1.125, PoissonBoundaryConditions.NEUMANN, PoissonMethod.GAUSS_SEIDEL, 1e-10, 150000);
+                phi.exportToCSV(createCSVFileName("poissonSolution", iterations));
+
+                VectorField velField = GradientCalculator.getGradient(phi);  // = gradient(phi)
+
+                velField.exportToCSV(createCSVFileName("velField", iterations));
+
+                lens.marchPointsBasedOnVelocityField(velField);
+                lens.exportToCSV(createCSVFileName("lens", iterations));
+
+                iterations++;
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            long endTime = System.nanoTime();
+            long runtime = (endTime - startTime) / 1000000000;  // in seconds
+            System.out.println("FINAL RUNTIME: " + runtime + " secs");
         }
+    }
+
+    public static String createCSVFileName(String identifier, int iterations) {
+        return "Files/" + identifier + iterations + ".csv";
     }
 }

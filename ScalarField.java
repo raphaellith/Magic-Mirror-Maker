@@ -1,4 +1,8 @@
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
 
@@ -40,6 +44,34 @@ public class ScalarField extends Matrix<Double> implements ExportableToCSV {
                 setElement(x, y, grayscaleValue);
             }
         }
+    }
+
+    public ScalarField(String csvFileName) throws Exception {
+        this(getMatrixOfDoublesFromCSVFile(csvFileName));
+    }
+
+    private static Matrix<Double> getMatrixOfDoublesFromCSVFile(String csvFileName) throws Exception {
+        BufferedReader reader = new BufferedReader(new FileReader(csvFileName));
+
+        // Create a tempMatrix (not of class Matrix) that is resizable; read elements from CSV file
+        ArrayList<double[]> tempMatrix = new ArrayList<>();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            double[] newRow = Arrays.stream(line.split(",")).mapToDouble(Double::valueOf).toArray();
+            if (!tempMatrix.isEmpty() && tempMatrix.getFirst().length != newRow.length) {
+                throw new Exception("Scalar field cannot be read from CSV as the row lengths are inconsistent");
+            }
+            tempMatrix.add(newRow);
+        }
+
+        // Convert ArrayList to actual Matrix object
+        Matrix<Double> matrix = new Matrix<>(tempMatrix.getFirst().length, tempMatrix.size());
+        for (int y = 0; y < matrix.height; y++) {
+            for (int x = 0; x < matrix.width; x++) {
+                matrix.setElement(x, y, tempMatrix.get(y)[x]);
+            }
+        }
+        return matrix;
     }
 
     public DoubleStream asDoubleStream() {
