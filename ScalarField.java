@@ -10,7 +10,7 @@ public class ScalarField extends Matrix<Double> implements ExportableToCSV {
     public ScalarField(int width, int height) {
         super(width, height);
 
-        // Initialiise all elements to the double 0.0
+        // Initialise all elements to the double 0.0
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 setElement(x, y, 0d);
@@ -84,19 +84,6 @@ public class ScalarField extends Matrix<Double> implements ExportableToCSV {
     public double getSum() {
         return asDoubleStream().sum();
     }
-
-//    public double getMax() throws Exception {
-//        OptionalDouble optionalMax = asDoubleStream().max();
-//        if (optionalMax.isPresent()) {
-//            return optionalMax.getAsDouble();
-//        } else {
-//            throw new Exception("Field is empty");
-//        }
-//    }
-
-//    public ScalarField negation() {
-//        return new ScalarField(getMapped(x -> -x));
-//    }
 
     public ScalarField plus(ScalarField s) throws Exception {
         return new ScalarField(getZippedWith(s, Double::sum));

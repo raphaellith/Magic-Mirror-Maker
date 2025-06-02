@@ -40,7 +40,7 @@ public class MagicMirrorMaker {
                 velField.exportToCSV(createCSVFileName("velField", iterations));
 
                 lens.marchPointsBasedOnVelocityField(velField);
-                lens.exportToCSV(createCSVFileName("lens", iterations));
+                lens.exportToCSV(createCSVFileName("postMarchingLens", iterations));
 
                 iterations++;
             }

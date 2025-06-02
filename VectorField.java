@@ -72,10 +72,6 @@ public class VectorField extends Matrix<Vector2D> implements ExportableToCSV {
         return new VectorField(getMapped(Vector2D::negated));
     }
 
-//    public VectorField scaled(double d) {
-//        return new VectorField(getMapped(x -> x.scaled(d)));
-//    }
-
     @Override
     public String toCSVString() {
         // xPos, yPos, vectorX, vectorY

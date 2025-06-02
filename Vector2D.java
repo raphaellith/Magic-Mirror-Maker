@@ -22,14 +22,6 @@ public class Vector2D {
         return DoubleUtil.isZero(x) && DoubleUtil.isZero(y);
     }
 
-//    public boolean equals(Vector2D otherVector) {
-//        return minus(otherVector).isZeroVector();
-//    }
-//
-//    public boolean isCollinearWith(Vector2D otherVector) {
-//        return DoubleUtil.isZero(x / otherVector.getX() - y / otherVector.getY());
-//    }
-
     public double getX() {
         return x;
     }
@@ -37,14 +29,6 @@ public class Vector2D {
     public double getY() {
         return y;
     }
-
-//    public Vector2D horizontalComponent() {
-//        return new Vector2D(x, 0);
-//    }
-//
-//    public Vector2D verticalComponent() {
-//        return new Vector2D(0, y);
-//    }
 
     public void setX(double x) {
         this.x = x;
@@ -70,10 +54,6 @@ public class Vector2D {
         return Math.sqrt(x * x + y * y);
     }
 
-//    public Vector2D normalised() {
-//        return scaled(1/length());
-//    }
-
     public Optional<Vector2D> scaledToLength(double len) {
         if (length() == 0) {
             return Optional.empty();
@@ -81,23 +61,7 @@ public class Vector2D {
         return Optional.of(scaled(len / length()));
     }
 
-//    public Optional<Vector2D> normalised() {
-//        return scaledToLength(1);
-//    }
-
     public Vector2D scaled(double m) {
         return new Vector2D(x * m, y * m);
     }
-
-//    public double atan2() {  // Returns values from 0 to 2*pi
-//        double result = Math.atan2(y, x);
-//        if (result < 0) {
-//            result += Math.TAU;
-//        }
-//        return result;
-//    }
-
-//    public double dotProduct(Vector2D otherVector) {
-//        return x * otherVector.getX() + y * otherVector.getY();
-//    }
 }

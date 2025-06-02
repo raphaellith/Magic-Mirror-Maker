@@ -6,9 +6,9 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class Matrix<T> {
-    protected int width;
-    protected int height;
-    protected T[][] matrix;
+    protected final int width;
+    protected final int height;
+    protected final T[][] matrix;
 
     @SuppressWarnings("unchecked")
     public Matrix(int width, int height) {
@@ -48,24 +48,6 @@ public class Matrix<T> {
         return width == otherMatrix.width && height == otherMatrix.height;
     }
 
-//    public Matrix<T> copy() {
-//        Matrix<T> copy = new Matrix<>(width, height);
-//        for (int y = 0; y < height; y++) {
-//            for (int x = 0; x < width; x++) {
-//                setElement(x, y, matrix[y][x]);
-//            }
-//        }
-//        return copy;
-//    }
-
-//    public void map(Function<T, T> func) {
-//        for (int y = 0; y < height; y++) {
-//            for (int x = 0; x < width; x++) {
-//                setElement(x, y, func.apply(matrix[y][x]));
-//            }
-//        }
-//    }
-
     public <R> Matrix<R> getMapped(Function<T, R> func) {
         Matrix<R> result = new Matrix<>(width, height);
         for (int y = 0; y < height; y++) {
@@ -101,18 +83,6 @@ public class Matrix<T> {
         matrix[y][x] = val;
     }
 
-    //    public void setNthRow(int y, T val) {
-//        for (int x = 0; x < width; x++) {
-//            setElement(x, y, val);
-//        }
-//    }
-//
-//    public void setNthColumn(int x, T val) {
-//        for (int y = 0; y < height; y++) {
-//            setElement(x, y, val);
-//        }
-//    }
-
     public List<T> getNeighboursOfElementAt(int x, int y) {
         return Stream.of(
                 new Pair<>(x + 1, y),
@@ -124,16 +94,6 @@ public class Matrix<T> {
                 .map(pair -> getElement(pair.first(), pair.second()))
                 .toList();
     }
-
-//    public boolean setMatrix(T[][] otherMatrix) {
-//        if (matrix.length == height && Arrays.stream(matrix).allMatch(ts -> ts.length == width)) {
-//            for (int y = 0; y < height; y++) {
-//                System.arraycopy(otherMatrix[y], 0, matrix[y], 0, width);
-//            }
-//            return true;
-//        }
-//        return false;
-//    }
 
     public Matrix<T> copiedInto(Matrix<T> otherMatrix) {
         // Copies elements into first copy of the otherMatrix, not necessarily of the same size.

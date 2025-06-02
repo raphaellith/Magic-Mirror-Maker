@@ -137,43 +137,6 @@ public class Lens extends VectorField {
         return negativeVelField;
     }
 
-//    private Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> getIndicesOfNeighbouringVectorsThatSandwich(int x, int y, Vector2D sandwichedVector) {
-//        // Given the indices x and y,
-//        // considers the (at most 4) edges that are connected to the vertex at position (x, y)
-//        // and returns the (x, y) indices for the two edges that "sandwich" the vector given
-//
-//        double sandwichedVectorAngle = sandwichedVector.atan2();
-//
-//        Vector2D currVector = getElement(x, y);
-//
-//        List<Pair<Integer, Integer>> indicesOfNeighbouringVectors = Stream.of(
-//                        new Pair<>(x + 1, y),
-//                        new Pair<>(x, y + 1),
-//                        new Pair<>(x - 1, y),
-//                        new Pair<>(x, y - 1)
-//                )
-//                .filter(pair -> validIndices(pair.first(), pair.second()))
-//                .toList();
-//
-//        int numOfNeighbours = indicesOfNeighbouringVectors.size();
-//
-//        double[] neighbouringVectorAngles = indicesOfNeighbouringVectors
-//                .stream()
-//                .map(pair -> getElement(pair.first(), pair.second()))
-//                .map(neighbouringVector -> neighbouringVector.minus(currVector))
-//                .mapToDouble(Vector2D::atan2)
-//                .toArray();
-//
-//        // We want to find integer i such that
-//        // neighbouringVectorAngles[i] < sandwichedVectorAngle < neighbouringVectorAngles[i+1]
-//        int i = 0;
-//        while (i < numOfNeighbours && sandwichedVectorAngle > neighbouringVectorAngles[i]) { i++; }
-//        i--;
-//        if (i < 0) { i += numOfNeighbours; }
-//
-//        return new Pair<>(indicesOfNeighbouringVectors.get(i), indicesOfNeighbouringVectors.get((i+1) % numOfNeighbours));
-//    }
-
     private OptionalDouble minTimeToReduceAreaEnclosedByMovingPointsToZero(Vector2D p1, Vector2D p2, Vector2D p3, Vector2D v1, Vector2D v2, Vector2D v3) {
         // Consider three moving points p1, p2 and p3, each with velocity v1, v2 and v3 respectively
         // Returns the minimum amount of time required for the area of the triangle p1-p2-p3 to drop to zero.
