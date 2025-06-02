@@ -1,19 +1,6 @@
 import java.awt.image.BufferedImage;
 
 public class MagicMirrorMaker {
-//    public static void main(String[] args) {
-//        try {
-//            VectorField velField = new VectorField("Files/velField0.csv");
-//            Lens lens = new Lens(4, 4);;
-//            System.out.println(lens);
-//            lens.marchPointsBasedOnVelocityField(new VectorField(4, 4));
-//            lens.exportToCSV(createCSVFileName("lens", iterations));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-
     public static void main(String[] args) {
         long startTime = System.nanoTime();
 
@@ -26,7 +13,7 @@ public class MagicMirrorMaker {
             Lens lens = new Lens(targetBrightnesses.width, targetBrightnesses.height);
 
             int iterations = 0;
-            while (iterations < 5) {
+            while (iterations < 1) {
                 ScalarField loss = lens.getLoss(targetBrightnesses);
                 loss.exportToCSV(createCSVFileName("loss", iterations));
 

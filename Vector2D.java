@@ -18,6 +18,18 @@ public class Vector2D {
         return new Vector2D(0, 0);
     }
 
+    public boolean isZeroVector() {
+        return DoubleUtil.isZero(x) && DoubleUtil.isZero(y);
+    }
+
+//    public boolean equals(Vector2D otherVector) {
+//        return minus(otherVector).isZeroVector();
+//    }
+//
+//    public boolean isCollinearWith(Vector2D otherVector) {
+//        return DoubleUtil.isZero(x / otherVector.getX() - y / otherVector.getY());
+//    }
+
     public double getX() {
         return x;
     }
@@ -69,7 +81,23 @@ public class Vector2D {
         return Optional.of(scaled(len / length()));
     }
 
+//    public Optional<Vector2D> normalised() {
+//        return scaledToLength(1);
+//    }
+
     public Vector2D scaled(double m) {
         return new Vector2D(x * m, y * m);
     }
+
+//    public double atan2() {  // Returns values from 0 to 2*pi
+//        double result = Math.atan2(y, x);
+//        if (result < 0) {
+//            result += Math.TAU;
+//        }
+//        return result;
+//    }
+
+//    public double dotProduct(Vector2D otherVector) {
+//        return x * otherVector.getX() + y * otherVector.getY();
+//    }
 }

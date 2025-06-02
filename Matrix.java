@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -100,7 +101,7 @@ public class Matrix<T> {
         matrix[y][x] = val;
     }
 
-//    public void setNthRow(int y, T val) {
+    //    public void setNthRow(int y, T val) {
 //        for (int x = 0; x < width; x++) {
 //            setElement(x, y, val);
 //        }
@@ -114,18 +115,28 @@ public class Matrix<T> {
 
     public List<T> getNeighboursOfElementAt(int x, int y) {
         return Stream.of(
-                new IntPair(x + 1, y),
-                new IntPair(x, y + 1),
-                new IntPair(x - 1, y),
-                new IntPair(x, y - 1)
+                new Pair<>(x + 1, y),
+                new Pair<>(x, y + 1),
+                new Pair<>(x - 1, y),
+                new Pair<>(x, y - 1)
         )
-                .filter(pair -> validIndices(pair.a(), pair.b()))
-                .map(pair -> getElement(pair.a(), pair.b()))
+                .filter(pair -> validIndices(pair.first(), pair.second()))
+                .map(pair -> getElement(pair.first(), pair.second()))
                 .toList();
     }
 
+//    public boolean setMatrix(T[][] otherMatrix) {
+//        if (matrix.length == height && Arrays.stream(matrix).allMatch(ts -> ts.length == width)) {
+//            for (int y = 0; y < height; y++) {
+//                System.arraycopy(otherMatrix[y], 0, matrix[y], 0, width);
+//            }
+//            return true;
+//        }
+//        return false;
+//    }
+
     public Matrix<T> copiedInto(Matrix<T> otherMatrix) {
-        // Copies elements into a copy of the otherMatrix, not necessarily of the same size.
+        // Copies elements into first copy of the otherMatrix, not necessarily of the same size.
         // If this matrix is smaller than the otherMatrix, the other elements in the otherMatrix are unbothered.
         // If this matrix is larger than the otherMatrix, the surplus elements are ignored.
 
@@ -141,5 +152,55 @@ public class Matrix<T> {
 
     public Stream<T> asStream() {
         return Arrays.stream(matrix).flatMap(Arrays::stream);
+    }
+
+    @SuppressWarnings("unchecked")
+    private ArrayList<Pair<Integer, Integer>[]> getAllSquareCoordGroups() {
+        // Returns a list of Pair<Integer, Integer> arrays, each containing four coordinates that in the matrix forms a
+        // 1x1 square.
+        // Each Pair<Integer, Integer> array describes squares in clockwise order, starting with the top left corner
+
+        ArrayList<Pair<Integer, Integer>[]> result = new ArrayList<>();
+        for (int y = 0; y < height - 1; y++) {
+            for (int x = 0; x < width - 1; x++) {
+                Pair<Integer, Integer>[] squareVertices = new Pair[] {
+                        new Pair<>(x, y),
+                        new Pair<>(x+1, y),
+                        new Pair<>(x+1, y+1),
+                        new Pair<>(x, y+1)
+                };
+
+                result.add(squareVertices);
+            }
+        }
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public ArrayList<Pair<Integer, Integer>[]> getAllTriangleCoordGroups() {
+        /*
+        Returns a list of Pair<Integer, Integer> arrays, each containing three elements that in the matrix forms a
+        triangle, laid out as follows:
+        __________
+        | /| /| /| ...
+        |/_|/_|/_|
+        | /| /| /| ...
+        |/_|/_|/_|
+            :
+            :
+         */
+
+        ArrayList<Pair<Integer, Integer>[]> result = new ArrayList<>();
+
+        ArrayList<Pair<Integer, Integer>[]> squareCoordGroups = getAllSquareCoordGroups();
+
+        for (Pair<Integer, Integer>[] square : squareCoordGroups) {
+            Pair<Integer, Integer>[] upperTriangleCoordGroup = new Pair[] {square[0], square[1], square[3]};
+            Pair<Integer, Integer>[] lowerTriangleCoordGroup = new Pair[] {square[1], square[2], square[3]};
+            result.add(upperTriangleCoordGroup);
+            result.add(lowerTriangleCoordGroup);
+        }
+
+        return result;
     }
 }

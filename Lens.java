@@ -58,13 +58,62 @@ public class Lens extends VectorField {
     }
 
     public void marchPointsBasedOnVelocityField(VectorField velField) throws Exception {
+        marchPointsBasedOnVelocityField(velField, 0.5);
+    }
+
+    public void marchPointsBasedOnVelocityField(VectorField velField, double extent) throws Exception {
+        VectorField negativeVelField = getAndPrepareNegativeVelocityFieldForMarching(velField);
+
+        VectorField resultantField = new VectorField(width, height);
+
+        // Determine how much to march
+        double minT = Double.POSITIVE_INFINITY;
+
+        ArrayList<Pair<Integer, Integer>[]> triangleCoordGroups = getAllTriangleCoordGroups();
+
+        for (Pair<Integer, Integer>[] triangleCoordGroup : triangleCoordGroups) {
+            int x0 = triangleCoordGroup[0].first();
+            int y0 = triangleCoordGroup[0].second();
+            int x1 = triangleCoordGroup[1].first();
+            int y1 = triangleCoordGroup[1].second();
+            int x2 = triangleCoordGroup[2].first();
+            int y2 = triangleCoordGroup[2].second();
+
+            Vector2D p0 = getElement(x0, y0);
+            Vector2D p1 = getElement(x1, y1);
+            Vector2D p2 = getElement(x2, y2);
+
+            Vector2D v0 = negativeVelField.getElement(x0, y0);
+            Vector2D v1 = negativeVelField.getElement(x1, y1);
+            Vector2D v2 = negativeVelField.getElement(x2, y2);
+
+            double t = minTimeToReduceAreaEnclosedByMovingPointsToZero(p0, p1, p2, v0, v1, v2).orElse(0);
+            if (DoubleUtil.isNonzero(t)) {
+                minT = Math.min(minT, t);
+            }
+        }
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                resultantField.setElement(x, y, getElement(x, y).plus(negativeVelField.getElement(x, y).scaled(minT * extent)));
+            }
+        }
+
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                setElement(x, y, resultantField.getElement(x, y));
+            }
+        }
+    }
+
+    private VectorField getAndPrepareNegativeVelocityFieldForMarching(VectorField velField) throws Exception {
         if (!((velField.width + 1 == width) && (velField.height + 1 == height))) {
             throw new Exception("Cannot march lens cell vertices based on velocity field if sizes are incompatible");
         }
 
         VectorField negativeVelField = new VectorField(
-                velField
-                        .negated()
+                velField.negated()
                         .copiedInto(new VectorField(velField.width + 1, velField.height + 1))
         );
 
@@ -85,37 +134,105 @@ public class Lens extends VectorField {
             negativeVelField.getElement(width - 1, y).setX(0);
         }
 
-        // March
-        // Length = 0.25 * (average length of side incident to the point in question)
-        double proportion = 0.25;
+        return negativeVelField;
+    }
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                List<Vector2D> neighbouringVectors = getNeighboursOfElementAt(x, y);
+//    private Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> getIndicesOfNeighbouringVectorsThatSandwich(int x, int y, Vector2D sandwichedVector) {
+//        // Given the indices x and y,
+//        // considers the (at most 4) edges that are connected to the vertex at position (x, y)
+//        // and returns the (x, y) indices for the two edges that "sandwich" the vector given
+//
+//        double sandwichedVectorAngle = sandwichedVector.atan2();
+//
+//        Vector2D currVector = getElement(x, y);
+//
+//        List<Pair<Integer, Integer>> indicesOfNeighbouringVectors = Stream.of(
+//                        new Pair<>(x + 1, y),
+//                        new Pair<>(x, y + 1),
+//                        new Pair<>(x - 1, y),
+//                        new Pair<>(x, y - 1)
+//                )
+//                .filter(pair -> validIndices(pair.first(), pair.second()))
+//                .toList();
+//
+//        int numOfNeighbours = indicesOfNeighbouringVectors.size();
+//
+//        double[] neighbouringVectorAngles = indicesOfNeighbouringVectors
+//                .stream()
+//                .map(pair -> getElement(pair.first(), pair.second()))
+//                .map(neighbouringVector -> neighbouringVector.minus(currVector))
+//                .mapToDouble(Vector2D::atan2)
+//                .toArray();
+//
+//        // We want to find integer i such that
+//        // neighbouringVectorAngles[i] < sandwichedVectorAngle < neighbouringVectorAngles[i+1]
+//        int i = 0;
+//        while (i < numOfNeighbours && sandwichedVectorAngle > neighbouringVectorAngles[i]) { i++; }
+//        i--;
+//        if (i < 0) { i += numOfNeighbours; }
+//
+//        return new Pair<>(indicesOfNeighbouringVectors.get(i), indicesOfNeighbouringVectors.get((i+1) % numOfNeighbours));
+//    }
 
-                int finalX = x;
-                int finalY = y;
+    private OptionalDouble minTimeToReduceAreaEnclosedByMovingPointsToZero(Vector2D p1, Vector2D p2, Vector2D p3, Vector2D v1, Vector2D v2, Vector2D v3) {
+        // Consider three moving points p1, p2 and p3, each with velocity v1, v2 and v3 respectively
+        // Returns the minimum amount of time required for the area of the triangle p1-p2-p3 to drop to zero.
+        // We reduce this to a simpler version of the problem where p1 is set to be the coordinate system's origin
 
-                OptionalDouble optionalAverageLength = neighbouringVectors
-                        .stream()
-                        .map(vector -> vector.minus(getElement(finalX, finalY)))
-                        .mapToDouble(Vector2D::length)
-                        .average();
-                double averageLength;
+        return minTimeToReduceAreaEnclosedByMovingPointsToZero(p2.minus(p1), p3.minus(p1), v2.minus(v1), v3.minus(v1));
 
-                if (optionalAverageLength.isPresent()) {
-                    averageLength = optionalAverageLength.getAsDouble();
-                } else {
-                    throw new Exception("Lens vertex has no neighbours");
-                }
+    }
 
-                Vector2D change = negativeVelField
-                        .getElement(x, y).scaledToLength(averageLength * proportion)  // Optional<Vector2D>
-                        .orElse(Vector2D.zeroVector());
+    private OptionalDouble minTimeToReduceAreaEnclosedByMovingPointsToZero(Vector2D p1, Vector2D p2, Vector2D v1, Vector2D v2) {
+        // Consider two moving points p1 and p2, each with velocity v1 and v2 respectively
+        // Returns the minimum amount of time required for the area of the triangle O-p1-p2 to drop to zero,
+        // where O is the origin.
 
-                setElement(x, y, getElement(x, y).plus(change));
+        // Note that the area of the triangle O-p1-p2 equals half of the abs value of
+        // the determinant of the matrix with columns p1 and p2, which allows us to derive a quadratic equation in t
+        // Hence the following computations
+
+        double a = v1.getX() * v2.getY() - v1.getY() * v2.getX();
+        double b = p1.getX() + v2.getY() + p2.getY() * v1.getX() - p2.getX() * v1.getY() - p1.getY() * v2.getX();
+        double c = p1.getX() * p2.getY() - p2.getX() * p1.getY();
+
+        if (DoubleUtil.isZero(a)) {  // Linear equation
+            double solution = -c/b;
+            if (solution < 0 || DoubleUtil.isZero(solution)) {
+                return OptionalDouble.empty();
+            } else {
+                return OptionalDouble.of(solution);
             }
+
         }
 
+        double discriminant = b * b - 4 * a * c;
+
+        if (discriminant < 0) {
+            return OptionalDouble.empty();
+        }
+
+        // Two distinct roots
+        // We return the smaller root that is positive
+
+        double root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+        double root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+
+        boolean root1Invalid = (root1 < 0) || DoubleUtil.isZero(root1);
+        boolean root2Invalid = (root2 < 0) || DoubleUtil.isZero(root2);
+
+        if (root1Invalid && root2Invalid) {
+            return OptionalDouble.empty();
+        }
+
+        if (root1Invalid) {
+            return OptionalDouble.of(root2);
+        }
+
+        if (root2Invalid) {
+            return OptionalDouble.of(root1);
+        }
+
+        return OptionalDouble.of(Math.min(root1, root2));
     }
 }

@@ -30,11 +30,14 @@ public class ScalarField extends Matrix<Double> implements ExportableToCSV {
     public ScalarField(BufferedImage img, int cropLeft, int cropTop, int cropWidth, int cropHeight) {  // Image file
         super(cropWidth, cropHeight);
 
+        img = ImageHandler.cropImage(img, cropLeft, cropTop, cropWidth, cropHeight);
+//        img = ImageHandler.toGreyscale(img);
+
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                int color = img.getRGB(cropLeft + x, cropTop + y);
+                int color = img.getRGB(x, y);
 
-//                int a = (color >> 24) & 0xff;
+//                int first = (color >> 24) & 0xff;
                 int r = (color >> 16) & 0xff;
                 int g = (color >> 8) & 0xff;
                 int b = color & 0xff;
@@ -53,7 +56,7 @@ public class ScalarField extends Matrix<Double> implements ExportableToCSV {
     private static Matrix<Double> getMatrixOfDoublesFromCSVFile(String csvFileName) throws Exception {
         BufferedReader reader = new BufferedReader(new FileReader(csvFileName));
 
-        // Create a tempMatrix (not of class Matrix) that is resizable; read elements from CSV file
+        // Create first tempMatrix (not of class Matrix) that is resizable; read elements from CSV file
         ArrayList<double[]> tempMatrix = new ArrayList<>();
         String line;
         while ((line = reader.readLine()) != null) {
