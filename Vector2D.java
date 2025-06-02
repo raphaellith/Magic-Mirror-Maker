@@ -18,10 +18,6 @@ public class Vector2D {
         return new Vector2D(0, 0);
     }
 
-    public boolean isZeroVector() {
-        return DoubleUtil.isZero(x) && DoubleUtil.isZero(y);
-    }
-
     public double getX() {
         return x;
     }
@@ -46,22 +42,15 @@ public class Vector2D {
         return new Vector2D(x - otherVector.getX(), y - otherVector.getY());
     }
 
+    public Vector2D scaled(double m) {
+        return new Vector2D(x * m, y * m);
+    }
+
     public Vector2D negated() {
         return new Vector2D(-x, -y);
     }
 
     public double length() {
         return Math.sqrt(x * x + y * y);
-    }
-
-    public Optional<Vector2D> scaledToLength(double len) {
-        if (length() == 0) {
-            return Optional.empty();
-        }
-        return Optional.of(scaled(len / length()));
-    }
-
-    public Vector2D scaled(double m) {
-        return new Vector2D(x * m, y * m);
     }
 }
