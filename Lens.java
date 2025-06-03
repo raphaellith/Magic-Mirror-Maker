@@ -123,29 +123,26 @@ public class Lens extends VectorField {
             throw new Exception("Cannot march lens cell vertices based on velocity field if sizes are incompatible");
         }
 
-        VectorField negativeVelField = new VectorField(
-                velField.negated()
-                        .copiedInto(new VectorField(velField.width + 1, velField.height + 1))
-        );
+        velField = new VectorField(velField.copiedInto(new VectorField(velField.width + 1, velField.height + 1)));
 
         // Handle right and bottom boundaries
         for (int x = 0; x < width - 1; x++) {
-            negativeVelField.setElement(x, height - 1, negativeVelField.getElement(x, height - 2));
+            velField.setElement(x, height - 1, velField.getElement(x, height - 2));
         }
         for (int y = 0; y < height; y++) {
-            negativeVelField.setElement(width - 1, y, negativeVelField.getElement(width - 2, y));
+            velField.setElement(width - 1, y, velField.getElement(width - 2, y));
         }
 
         for (int x = 0; x < width; x++) {
-            negativeVelField.getElement(x, 0).setY(0);
-            negativeVelField.getElement(x, height - 1).setY(0);
+            velField.getElement(x, 0).setY(0);
+            velField.getElement(x, height - 1).setY(0);
         }
         for (int y = 0; y < height; y++) {
-            negativeVelField.getElement(0, y).setX(0);
-            negativeVelField.getElement(width - 1, y).setX(0);
+            velField.getElement(0, y).setX(0);
+            velField.getElement(width - 1, y).setX(0);
         }
 
-        return negativeVelField;
+        return velField;
     }
 
     private OptionalDouble minTimeToReduceAreaEnclosedByMovingPointsToZero(Vector2D p1, Vector2D p2, Vector2D p3, Vector2D v1, Vector2D v2, Vector2D v3) {
