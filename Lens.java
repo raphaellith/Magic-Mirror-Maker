@@ -2,6 +2,9 @@ import java.util.*;
 
 public class Lens extends VectorField {
     public Lens(int horizontalNumOfCells, int verticalNumOfCells) {
+        // Width = horizontalNumOfCells + 1
+        // Height = verticalNumOfCells + 1
+
         super(horizontalNumOfCells + 1, verticalNumOfCells + 1);
 
         for (int y = 0; y < height; y++) {
@@ -26,6 +29,8 @@ public class Lens extends VectorField {
     }
 
     public ScalarField getCellAreas() {
+        // Returns a scalar field representing the area of each lens cell
+
         ScalarField result = new ScalarField(width - 1, height - 1);
 
         ArrayList<Vector2D> cellVertices = new ArrayList<>();
@@ -52,6 +57,7 @@ public class Lens extends VectorField {
     }
 
     public ScalarField getLoss(ScalarField brightnesses) throws Exception {
+        // Given the target brightnesses from the image, computes the loss of this lens
         ScalarField brightnessPercentages = brightnesses.divideBy(brightnesses.getSum());
         ScalarField areaPercentages = getCellAreas().divideBy(getTotalArea());
         return brightnessPercentages.minus(areaPercentages);
@@ -62,6 +68,9 @@ public class Lens extends VectorField {
     }
 
     public void marchPointsBasedOnVelocityField(VectorField velField, double extent) throws Exception {
+        // Morph the lens based on the velocity field by morphing the lens vertices
+        // "extent" is a double value between 0 and 1, describing the extent to which the lens is morphed
+
         VectorField negativeVelField = getAndPrepareNegativeVelocityFieldForMarching(velField);
 
         VectorField resultantField = new VectorField(width, height);
@@ -92,6 +101,8 @@ public class Lens extends VectorField {
                 minT = Math.min(minT, t);
             }
         }
+
+        assert Double.isFinite(minT);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {

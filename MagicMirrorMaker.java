@@ -13,7 +13,7 @@ public class MagicMirrorMaker {
             Lens lens = new Lens(targetBrightnesses.width, targetBrightnesses.height);
 
             int iterations = 0;
-            while (iterations < 1) {
+            while (iterations < 5) {
                 ScalarField loss = lens.getLoss(targetBrightnesses);
                 loss.exportToCSV(createCSVFileName("loss", iterations));
 
